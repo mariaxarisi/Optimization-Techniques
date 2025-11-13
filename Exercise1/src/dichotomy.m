@@ -102,7 +102,7 @@ hold off;
 
 %% === PART 3: Interval endpoints as functions of iteration index ===
 
-L = [0.005, 0.01, 0.015];
+L = [0.005, 0.01, 0.1];
 epsilon = 0.001;
 
 for j = 1:length(L)
