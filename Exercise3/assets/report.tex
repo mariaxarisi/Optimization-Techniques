@@ -1,0 +1,419 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{titlesec}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{multirow}
+\geometry{margin=1in}
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+
+\title{Optimization Techniques: Exercise 2}
+\author{Maria Charisi 10727}
+\date{December 2025\\ 
+\href{https://github.com/mariaxarisi/Optimization-Techniques}{\texttt{Github Repo}}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report constitutes the third part of the assignment for the \textit{Optimization Techniques} course at the \textit{Aristotle University of Thessaloniki}. 
+The purpose of this work is to investigate the performance of two gradient-based optimization methods: the classical Steepest Descent algorithm with a fixed step size, and the Steepest Descent method with projection onto a closed convex set.
+We apply both methods to a quadratic objective function and analyze their behavior under various choices of the initial point and step parameter, highlighting the resulting differences in convergence.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+In this assignment, we study the behavior of the gradient-based optimization method, Steepest Descent, when applied to both unconstrained and constrained problems.  
+The objective function under consideration is the quadratic function
+\[
+    f(x,y) = \frac{1}{3}x^{2} + 3y^{2},
+\]
+which is strictly convex, continuously differentiable, and has a unique global minimum at
+\[
+    (x^*, y^*) = (0,0), \qquad f(x^*,y^*) = 0.
+\]
+Figures~\ref{fig:3dplot} and \ref{fig:contourplot} illustrate the surface of the function in 3-dimensional space and its contour curves in the plane, respectively.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{assets/3D_plot.png}
+    \caption{3D surface plot of $f(x,y)$.}
+    \label{fig:3dplot}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\textwidth]{assets/contour_plot.png}
+    \caption{Contour plot of $f(x,y)$.}
+    \label{fig:contourplot}
+\end{figure}
+
+\section{Steepest Descent Method}
+
+\subsection{Method Description}
+
+The Steepest Descent method is one of the simplest iterative optimization algorithms.
+At each iteration, the descent direction is chosen as the negative gradient of the
+objective function, that is,
+\[
+d_k = -\nabla f(x_k).
+\]
+
+Therefore, the update rule is
+\[
+x_{k+1} = x_k - \gamma_k \nabla f(x_k),
+\]
+where $\gamma_k > 0$ in our case is a fixed step size.
+
+\begin{algorithm}[H]
+\caption{Steepest Descent Method}
+\begin{algorithmic}[1]
+\Require Function $f$, gradient $\nabla f$, initial point $x_0$, step size $\gamma$, tolerance $\epsilon > 0$
+\Ensure Approximate minimizer $x^*$
+\State Set $x_k \gets x_0$, $k \gets 0$
+\While{$\|\nabla f(x_k)\| > \epsilon$}
+    \State Compute gradient $\nabla f(x_k)$
+    \State $d_k \gets -\nabla f(x_k)$ \Comment{Descent direction}
+    \State $x_{k+1} \gets x_k + \gamma d_k$
+    \State $k \gets k + 1$
+\EndWhile
+\State \Return $x^* \gets x_k$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Convergence Analysis for f(x, y)}
+
+Consider our quadratic objective function
+$$
+f(x,y) = \frac{1}{3}x^{2} + 3y^{2} 
+$$
+It can be expressed in matrix form as
+$$
+f(x, y) = \frac{1}{2} \begin{bmatrix}x & y\end{bmatrix} 
+             \begin{bmatrix}2/3 &0\\0 & 6\end{bmatrix}
+             \begin{bmatrix}x \\y\end{bmatrix}
+        = \frac{1}{2}x^T Q x,
+\quad where \quad
+Q = \begin{bmatrix}2/3 &0\\0 & 6\end{bmatrix}
+$$
+and its gradient is equal to
+$$
+\nabla f(x) = \begin{pmatrix} \frac{\partial f}{\partial x_1} \\ \frac{\partial f}{\partial x_2} \end{pmatrix} = Qx
+$$
+Substituting the gradient into the update rule of Steepest Descent method gives
+$$
+x_{k+1} = x_k - \gamma \nabla f(x_k) = x_k - \gamma Q x_k = (I - \gamma Q) x_k
+$$
+Applying this iteratively, we obtain
+$$
+x_{k+N} = (I - \gamma Q)^N x_k 
+        = \begin{bmatrix}(1-\frac{2}{3}\gamma)^N & 0 \\0 & (1-6\gamma)^N\end{bmatrix}x_k
+$$
+The vector $x_{k+N}$ converges to the global minimum $x^* = (0, 0)$ if and only if:
+$$
+\lim_{N \to \infty}(1-\frac{2}{3}\gamma)^N = 0 \quad \text{and} \quad \lim_{N \to \infty}(1-6\gamma)^N = 0
+$$
+These conditions lead to the inequalities
+$$
+|1-\frac{2}{3}\gamma| < 1 \implies -1 < 1-\frac{2}{3}\gamma < 1 \implies 0 < \gamma < 3
+$$
+$$
+|1-6\gamma| < 1 \implies -1 < 1-6\gamma < 1 \implies 0 < \gamma < \frac{1}{3}
+$$
+The more restrictive condition dominates, so the step size must satisfy
+$$
+\boxed{0 < \gamma < \frac{1}{3}}
+$$
+to ensure convergence of the Steepest Descent method for this quadratic function.
+
+\subsection{Results}
+
+The experimental results from the execution of the Steepest Descent algorithm for different fixed step sizes, starting from (5, 5), summarized in Table \ref{tab:steepest_descent} and illustrated in Figure \ref{fig:steepest_descent}, perfectly validate the theoretical convergence condition $0 < \gamma < \frac{1}{3}$ derived in the previous section.
+
+\begin{itemize}
+    \item \textbf{Convergence (Stable Step Sizes):} For the step sizes $\gamma=0.1$ and $\gamma=0.3$, which both fall within the theoretical convergence interval $\left(0, \frac{1}{3}\right)$, the algorithm successfully converged to points very close to the global minimum $x^* = (0, 0)$, where $f(x^*)=0$.
+    \item \textbf{Effect of Step Size on Speed:} Although both converged, the larger step size of $\gamma=0.3$ resulted in significantly faster convergence, requiring only 37 iterations, compared to 86 iterations for $\gamma=0.1$. This is because a larger $\gamma$ corresponds to a higher learning rate, accelerating convergence.r. 
+    \item \textbf{Divergence (Unstable Step Sizes):} On the contrary, when the step size was chosen outside the convergence range ($\gamma=3.0$ and $\gamma=5.0$), the algorithm diverged. The iterative points moved exponentially away from the minimum with each step.
+    \item \textbf{Numerical Instability:} As shown in the table, for $\gamma=3.0$ and $\gamma=5.0$, the algorithm ran for the maximum iterations $50,000$ without meeting the tolerance $\epsilon$. The function values grew so large that they quickly resulted in Not a Number (NaN) values due to floating-point overflow.
+\end{itemize}
+
+This comparison confirms that for a fixed step size method, the convergence of the algorithm is highly dependent on the strict bounds imposed by the maximum eigenvalue of the Hessian matrix.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Step Size $\gamma$} & \textbf{Minimum Point $x^*$} & \textbf{Minimum Value $f(x^*)$} & \textbf{Iterations} \\
+\hline
+0.1 & (0.013247, 0.0) & 0.000058 & 86 \\
+0.3 & (0.001298, -0.001298) & 0.000006 & 37 \\
+3.0 & (5.0, NaN) & NaN & 50000 \\
+5.0 & (NaN, NaN) & NaN & 50000 \\
+\hline
+\end{tabular}
+\caption{Results of the Steepest Descent method for different step sizes starting at $(5,5)$.}
+\label{tab:steepest_descent}
+\end{table}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{assets/Q1.png}
+    \caption{Convergence of the Steepest Descent method for different step sizes  starting at $(5,5)$.}
+    \label{fig:steepest_descent}
+\end{figure}
+
+\newpage
+
+\section{Projected Steepest Descent Method}
+
+\subsection{Method Description}
+
+The Projected Steepest Descent method is an extension of the classical Steepest Descent algorithm designed for
+\textit{constrained} optimization problems.  
+In our setting, the feasible region is the closed and convex rectangle
+\[
+X = \{(x,y)\in\mathbb{R}^2 : -10 \le x \le 5,\;\; -8 \le y \le 12\}.
+\]
+
+At each iteration, instead of moving directly along the negative gradient, the algorithm first computes an
+\emph{unconstrained} descent step and then projects this point back onto the feasible set.
+The procedure consists of the following steps:
+
+\begin{itemize}
+    \item Starting from the current iterate $x_k$, we compute an intermediate point
+    \[
+        x_k' = x_k - s \nabla f(x_k),
+    \]
+    where $s > 0$ is a step size.
+    This point represents the direction of the steepest descent, as in the unconstrained case.
+    
+    \item Since $x_k'$ may lie outside the feasible region, it is projected onto the constraint set $X$:
+    \[
+        \bar{x}_k = \mathrm{Pr}_X(x_k -s \nabla f(x_k))
+    \]
+    For the rectangular set $X$, the projection is performed componentwise by simply clipping each coordinate into
+    the corresponding interval.
+    
+    \item The vector
+    \[
+        d_k = \bar{x}_k - x_k
+    \]
+    defines a feasible descent direction that always keeps the next iterate inside $X$.
+    
+    \item Finally, the updated iterate is obtained using a fixed step size $\gamma \in (0,1]$:
+    \[
+        x_{k+1} = x_k + \gamma d_k.
+    \]
+\end{itemize}
+
+If $\gamma$ and $s$ are chosen appropriately, the method generates a sequence of feasible points
+$\{x_k\}$ that converges to a minimizer of $f$ over the set $X$.  
+This projection-based correction ensures that every iterate respects the box constraints, making the method suitable
+for constrained optimization problems where the classical Steepest Descent algorithm would otherwise leave the feasible region.
+
+
+\begin{algorithm}[H]
+\caption{Projected Steepest Descent Method}
+\begin{algorithmic}[1]
+\Require Function $f$, gradient $\nabla f$, initial point $x_0$, step size $\gamma$, step size s, tolerance $\epsilon > 0$
+\Ensure Approximate minimizer $x^*$
+\State Set $x_k \gets x_0$, $k \gets 0$
+\While{$\|\nabla f(x_k)\| > \epsilon$}
+    \State Compute gradient $\nabla f(x_k)$
+    \State $\bar{x}_k \gets Pr_X\{x_k- s \nabla f(x_k)\}$ \Comment{Projection of $x_k$ onto the feasible region $X$}
+    \State $d_k \gets \bar{x_k} - x_k$ \Comment{Descent direction}
+    \State $x_{k+1} \gets x_k + \gamma d_k$
+    \State $k \gets k + 1$
+\EndWhile
+\State \Return $x^* \gets x_k$
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+\subsection{Results}
+
+\subsubsection{Case 1: $x_0 = (5,-5)$, $\gamma = 0.5$, $s = 5$}
+
+In this experiment we apply the Projected Steepest Descent method starting from the initial point
+\[
+x_0 = (5,-5), \qquad \gamma = 0.5, \qquad s = 5,
+\]
+with the feasible region defined as the rectangle
+\[
+X = \{(x,y)\in\mathbb{R}^2 : -10 \le x \le 5,\;\; -8 \le y \le 12\}.
+\]
+
+Since the initial point lies strictly inside the feasible set, the first intermediate point is computed as
+\[
+x_k' = x_k - s\nabla f(x_k),
+\]
+and for all early iterations this point remains inside $X$.  
+Thus, the projection operator has no effect, meaning $\bar{x}_k = x_k'$ and the update rule reduces to
+\[
+x_{k+1} = x_k + \gamma(\bar{x}_k - x_k)
+        = x_k - \gamma s \nabla f(x_k).
+\]
+This is exactly the same update rule as the classical Steepest Descent method with an \emph{effective} step size
+\[
+\gamma_{\text{eff}} = \gamma s.
+\]
+
+From the convergence analysis in Section~2, the Steepest Descent method converges for this quadratic function only if
+\[
+0 < \gamma_{\text{eff}} < \frac{1}{3}.
+\]
+However, in this experiment we have
+\[
+\gamma_{\text{eff}} = \gamma s = 0.5 \times 5 = 2.5,
+\]
+which lies outside the convergence interval.  
+Therefore, the method cannot converge and the iterates diverge away from the minimizer.
+
+Figure~\ref{fig:proj_case1} shows the evolution of the objective function value $f(x_k)$ over the iterations.  
+We observe that the method reaches the maximum iteration limit (50,000 iterations) without approaching the true minimum value $f^*=0$.
+
+Unlike the unconstrained Steepest Descent method with large step sizes (e.g., $\gamma=3$ or $\gamma=5$), the projected method keeps all iterates \emph{inside} the feasible region.  
+Thus, although the iterates diverge numerically, the projection operator prevents them from escaping the constraint set.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.75\textwidth]{assets/Q2.png}
+    \caption{Convergence of the Projected Steepest Descent method for $x_0=(5,-5)$, $\gamma=0.5$, $s=5$.}
+    \label{fig:proj_case1}
+\end{figure}
+
+\paragraph{Improvement by adjusting the parameter $s$.}
+
+If we reduce the value of $s$ to $s=0.5$ while keeping $\gamma=0.5$, then the effective step size becomes
+\[
+\gamma_{\text{eff}} = \gamma s = 0.5 \times 0.5 = 0.25,
+\]
+which \emph{does} satisfy the convergence condition
+\[
+0 < \gamma_{\text{eff}} < \frac{1}{3}.
+\]
+
+In this case, the method converges smoothly to the global minimum $(0,0)$ in only 30 iterations, fully consistent with the theoretical prediction.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.75\textwidth]{assets/Q2_optimized.png}
+    \caption{Convergence of the Projected Steepest Descent method for $x_0=(5,-5)$, $\gamma=0.5$, $s=0.5$.}
+    \label{fig:proj_case1_s05}
+\end{figure}
+
+
+\subsubsection{Case 2: $x_0 = (-5,10)$, $\gamma = 0.1$, $s = 15$}
+
+In the second experiment, we apply the Projected Steepest Descent method starting from the point  
+\[
+x_0 = (-5,10), \qquad \gamma = 0.1, \qquad s = 15.
+\]
+
+The fixed step size is within the theoretical convergence range derived earlier,
+\[
+0 < \gamma < \frac{1}{3},
+\]
+so we expect the method to converge.  
+Indeed, the algorithm eventually approaches the minimizer of the function; however, its behavior is highly irregular.
+
+\paragraph{Effect of a large internal step size $s$.}
+
+Although $\gamma$ is small, the intermediate update
+\[
+x_k' = x_k - s\,\nabla f(x_k)
+\]
+uses a very large value of $s=15$, so the point $x_k'$ undergoes a drastic displacement at each iteration.
+
+This leads to several phenomena:
+
+\begin{itemize}
+    \item The point $x_k'$ often falls outside the feasible region $X$, forcing the projection operator to clip its components.
+    \item The resulting direction $d_k = \bar{x}_k - x_k$ oscillates heavily, causing the objective function values to fluctuate.
+    \item As a result, the method converges very slowly and exhibits \emph{jittering} behavior before stabilizing.
+\end{itemize}
+
+Figure~\ref{fig:proj_case2} confirms this effect: even though the sequence eventually converges, the objective function decreases in an unstable way.  
+In fact, the method requires 22,419 iterations to reach the tolerance threshold, despite using a theoretically valid step size $\gamma$.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.75\textwidth]{assets/Q3.png}
+    \caption{Convergence of the Projected Steepest Descent method for $x_0=(-5,10)$, $\gamma=0.1$, $s=15$.}
+    \label{fig:proj_case2}
+\end{figure}
+
+\paragraph{Improving the internal step parameter $s$.}
+
+To improve the behavior of the method, we reduce the value of $s$ from $15$ to $3$.
+
+With the smaller value of $s$, the algorithm converges in only 37 iterations, without oscillations, and reaches the global minimum $(0,0)$ efficiently.  
+This demonstrates that although $\gamma$ determines theoretical convergence, the parameter $s$ controls the \emph{practical stability} of the Projected Steepest Descent method.
+
+Figure~\ref{fig:proj_case2_s3} illustrates the improved convergence behavior.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.75\textwidth]{assets/Q3_optimized.png}
+    \caption{Convergence of the Projected Steepest Descent method for $x_0=(-5,10)$ using $s=3$ and $\gamma=0.1$.}
+    \label{fig:proj_case2_s3}
+\end{figure}
+
+\subsubsection{Case 3: $x_0 = (8,-10)$, $\gamma = 0.2$, $s = 0.1$}
+
+In the final experiment, we consider the initial point  
+\[
+x_0 = (8, -10), \qquad \gamma = 0.2, \qquad s = 0.1.
+\]
+
+Both parameters satisfy the theoretical convergence condition so the algorithm is expected to converge smoothly.  
+However, the starting point lies \emph{outside} the feasible region
+\[
+X = \{(x,y)\in\mathbb{R}^2 : -10 \le x \le 5,\;\; -8 \le y \le 12\}.
+\]
+This does not pose a problem, because the Projected Steepest Descent method ensures feasibility by applying the projection operator:
+\[
+\bar{x_k} = \mathrm{Pr}_X(x_k - s \nabla f(x_k)).
+\]
+
+The numerical results show that the method successfully converges to the global minimum after 277 iterations.  
+The corresponding convergence plot is shown in Figure~\ref{fig:proj_case3}.  
+As expected, the objective function decreases monotonically without oscillations, reflecting the good choice of parameters.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.75\textwidth]{assets/Q4.png}
+    \caption{Convergence of the Projected Steepest Descent method for $x_0=(8,-10)$, $\gamma=0.2$, $s=0.1$.}
+    \label{fig:proj_case3}
+\end{figure}
+
+\paragraph{Improving the initialization.}
+One practical improvement is to \emph{project the initial point before starting the iterations}.  
+Instead of beginning with the infeasible $x_0=(8,-10)$, we may start directly from:
+\[
+x_0^{\mathrm{proj}} = \mathrm{Pr}_X(8,-10) = (5, -8).
+\]
+
+This reduces the initial distance from the optimum and therefore accelerates convergence.  
+Indeed, when using $x_0^{\mathrm{proj}}$ as the starting point, the method converges in 263 iterations instead of 277.
+
+Figure~\ref{fig:proj_case3_projstart} illustrates this faster descent.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.75\textwidth]{assets/Q4_optimized.png}
+    \caption{Convergence of the Projected Steepest Descent method for $x_0=(5,-8)$, $\gamma=0.2$, $s=0.1$.}
+    \label{fig:proj_case3_projstart}
+\end{figure}
+
+
+\end{document}
