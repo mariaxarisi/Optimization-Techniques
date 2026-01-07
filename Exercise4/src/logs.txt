@@ -1,0 +1,53 @@
+Generating Data...
+
+--- Tuning 1: Number of Gaussians ---
+Testing N=2... Val MSE: 0.04447
+Testing N=3... Val MSE: 0.02104
+Testing N=4... Val MSE: 0.02520
+Testing N=5... Val MSE: 0.01033
+Testing N=6... Val MSE: 0.01484
+Testing N=7... Val MSE: 0.02037
+Testing N=8... Val MSE: 0.01437
+Testing N=9... Val MSE: 0.01348
+Testing N=10... Val MSE: 0.01582
+Testing N=11... Val MSE: 0.02366
+Testing N=12... Val MSE: 0.01413
+Testing N=13... Val MSE: 0.02038
+Testing N=14... Val MSE: 0.01200
+Testing N=15... Val MSE: 0.01141
+>>> Best Number of Gaussians: 5 (MSE: 0.01033)
+
+--- Tuning 2: Crossover & Mutation Probabilities ---
+[1/25] Testing Cross=0.50, Mut=0.05... MSE: 0.04334
+[2/25] Testing Cross=0.50, Mut=0.10... MSE: 0.01677
+[3/25] Testing Cross=0.50, Mut=0.15... MSE: 0.01416
+[4/25] Testing Cross=0.50, Mut=0.20... MSE: 0.01800
+[5/25] Testing Cross=0.50, Mut=0.25... MSE: 0.03257
+[6/25] Testing Cross=0.60, Mut=0.05... MSE: 0.02354
+[7/25] Testing Cross=0.60, Mut=0.10... MSE: 0.01264
+[8/25] Testing Cross=0.60, Mut=0.15... MSE: 0.01929
+[9/25] Testing Cross=0.60, Mut=0.20... MSE: 0.02448
+[10/25] Testing Cross=0.60, Mut=0.25... MSE: 0.01306
+[11/25] Testing Cross=0.70, Mut=0.05... MSE: 0.02023
+[12/25] Testing Cross=0.70, Mut=0.10... MSE: 0.06175
+[13/25] Testing Cross=0.70, Mut=0.15... MSE: 0.02096
+[14/25] Testing Cross=0.70, Mut=0.20... MSE: 0.01733
+[15/25] Testing Cross=0.70, Mut=0.25... MSE: 0.02490
+[16/25] Testing Cross=0.80, Mut=0.05... MSE: 0.01672
+[17/25] Testing Cross=0.80, Mut=0.10... MSE: 0.02091
+[18/25] Testing Cross=0.80, Mut=0.15... MSE: 0.01917
+[19/25] Testing Cross=0.80, Mut=0.20... MSE: 0.04188
+[20/25] Testing Cross=0.80, Mut=0.25... MSE: 0.02077
+[21/25] Testing Cross=0.90, Mut=0.05... MSE: 0.02889
+[22/25] Testing Cross=0.90, Mut=0.10... MSE: 0.01662
+[23/25] Testing Cross=0.90, Mut=0.15... MSE: 0.02280
+[24/25] Testing Cross=0.90, Mut=0.20... MSE: 0.01978
+[25/25] Testing Cross=0.90, Mut=0.25... MSE: 0.02058
+>>> Best Parameters: Cross=0.60, Mut=0.10
+
+--- Starting Final Run with Optimized Parameters ---
+Gaussians: 5 | Cross: 0.60 | Mut: 0.10
+
+--- Results ---
+Training MSE:   0.005893
+Validation MSE: 0.006183
